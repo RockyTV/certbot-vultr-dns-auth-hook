@@ -7,7 +7,7 @@ import string
 from time import sleep
 
 # Configure here
-VULTR_API_KEY = "put your api key here"
+VULTR_API_KEY = ""
 VULTR_BIND_DELAY = 30
 
 
@@ -23,8 +23,7 @@ def vultr_request(method, path, data=None):
 
 
 def normalize_fqdn(fqdn):
-    fqdn = string.lower(fqdn)
-    return fqdn
+    return fqdn.lower()
 
 
 def find_zone_for_name(domain):
@@ -37,7 +36,7 @@ def find_zone_for_name(domain):
 
     domain_split = domain.split('.')
     while len(domain_split) > 0:
-        search = string.join(domain_split, ".")
+        search = ".".join(domain_split)
         if search in zones:
             return search
         domain_split = domain_split[1:]
@@ -67,16 +66,16 @@ def remove_record(domain, txt_value):
     zone = find_zone_for_name(to_remove)
     recs = list_records(zone)
 
-    print "Removing {} TXT: {}".format(to_remove, txt_value)
+    print("Removing {} TXT: {}".format(to_remove, txt_value))
 
     to_remove = to_remove[:-len(zone)-1]
 
-    found = filter(
+    found = list(filter(
         lambda rec:
             'name' in rec and rec['name'] == to_remove and
             'type' in rec and rec['type'] == 'TXT' and
             rec['data'] == '"{}"'.format(txt_value),
-        recs)
+        recs))
 
     if len(found) == 0:
         print("Could not find record to remove: {} with value {}".
